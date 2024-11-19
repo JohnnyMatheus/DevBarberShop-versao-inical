@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Clientes - Barbearia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="text-center">Gestão de Clientes</h2>
+    <hr>
+
+    <!-- Formulário para adicionar cliente -->
+    <div class="card mb-5">
+        <div class="card-header">Adicionar Novo Cliente</div>
+        <div class="card-body">
+            <form id="cliente-form">
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome:</label>
+                    <input type="text" class="form-control" id="nome" required>
+                </div>
+                <div class="mb-3">
+                    <label for="telefone" class="form-label">Telefone:</label>
+                    <input type="text" class="form-control" id="telefone" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <button type="submit" class="btn btn-success">Adicionar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela para exibir clientes -->
+    <h3>Lista de Clientes</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Telefone</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody id="clientes-table"></tbody>
+    </table>
+</div>
+
+<script>
+// Função para carregar clientes
+function carregarClientes() {
+    fetch('/clientes')
+        .then(response => response.json())
+        .then(data => {
+            let tabela = document.getElementById('clientes-table');
+            tabela.innerHTML = ''; // Limpa a tabela
+            data.forEach(cliente => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${cliente.codcli}</td>
+                        <td>${cliente.nomcli}</td>
+                        <td>${cliente.telcli}</td>
+                        <td>${cliente.emailcli}</td>
+                    </tr>`;
+            });
+        })
+        .catch(error => console.error('Erro ao carregar clientes:', error));
+}
+
+// Função para adicionar cliente
+document.getElementById('cliente-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const nome = document.getElementById('nome').value;
+    const telefone = document.getElementById('telefone').value;
+    const email = document.getElementById('email').value;
+
+    const novoCliente = { nomcli: nome, telcli: telefone, emailcli: email };
+
+    fetch('/clientes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(novoCliente)
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Cliente adicionado com sucesso!');
+            carregarClientes(); // Atualiza a tabela
+            document.getElementById('cliente-form').reset(); // Limpa o formulário
+        } else {
+            alert('Erro ao adicionar cliente.');
+        }
+    })
+    .catch(error => console.error('Erro:', error));
+});
+
+// Carregar clientes ao carregar a página
+carregarClientes();
+</script>
+</body>
+</html>
